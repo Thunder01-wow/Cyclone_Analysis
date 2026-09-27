@@ -1,0 +1,8 @@
+tensorflow>=2.15
+numpy
+pandas
+scikit-learn
+fastapi
+uvicorn[standard]
+pillow
+python-multipart
