@@ -4,7 +4,7 @@
 const state = {
   activePage: 'dashboard',
   useLiveBackend: false,
-  apiBaseUrl: 'http://localhost:8000',
+  apiBaseUrl: window.location.origin,,
   currentCyclone: 'biparjoy',
   currentBasin: 'Arabian Sea',
   lastPredictionResult: null,
@@ -114,7 +114,7 @@ function setupBackendToggle() {
   
   toggle.addEventListener('change', (e) => {
     state.useLiveBackend = e.target.checked;
-    const modeText = state.useLiveBackend ? 'Live Backend API (localhost:8000)' : 'Simulation Driver';
+    const modeText = state.useLiveBackend ? 'Live Backend API' : 'Simulation Driver';
     indicator.textContent = `Mode: ${modeText}`;
     badgeNav.textContent = state.useLiveBackend ? 'LIVE API' : 'SIMULATION DRIVER';
     badgeNav.className = state.useLiveBackend ? 'pill pill-crimson' : 'pill pill-blue';
@@ -131,7 +131,8 @@ async function checkBackendHealth() {
     const res = await fetch(`${state.apiBaseUrl}/health`, { method: 'GET' });
     if (res.ok) {
       const data = await res.json();
-      statusPill.innerHTML = `<span class="status-dot"></span> CNN Model Online (${data.model_loaded ? 'ResNet Ready' : 'Heuristic Active'})`;
+      statusPill.innerHTML =
+  `<span class="status-dot"></span> Prototype API Online`;
     } else {
       throw new Error();
     }
