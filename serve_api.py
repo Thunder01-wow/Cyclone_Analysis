@@ -1,17 +1,21 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
-import numpy as np
 import io
-import os
+import random
+
 
 app = FastAPI(
     title="Cyclone Analysis API",
-    description="AI-based tropical cyclone analysis API",
+    description="Prototype Tropical Cyclone Analysis System",
     version="1.0"
 )
 
-# Allow frontend requests
+
+# --------------------------------------------------
+# CORS
+# --------------------------------------------------
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,49 +25,134 @@ app.add_middleware(
 )
 
 
+# --------------------------------------------------
+# Home
+# --------------------------------------------------
+
 @app.get("/")
 def home():
     return {
-        "message": "Cyclone Analysis API is running"
+        "message": "Cyclone Analysis API is running",
+        "mode": "prototype"
     }
 
+
+# --------------------------------------------------
+# Health
+# --------------------------------------------------
 
 @app.get("/health")
 def health():
     return {
-        "status": "healthy"
+        "status": "healthy",
+        "mode": "prototype"
     }
 
+
+# --------------------------------------------------
+# Intensity classification
+# --------------------------------------------------
+
+def get_intensity(wind_speed):
+
+    if wind_speed < 17:
+        return "Depression"
+
+    elif wind_speed < 28:
+        return "Deep Depression"
+
+    elif wind_speed < 34:
+        return "Cyclonic Storm"
+
+    elif wind_speed < 48:
+        return "Severe Cyclonic Storm"
+
+    elif wind_speed < 64:
+        return "Very Severe Cyclonic Storm"
+
+    elif wind_speed < 90:
+        return "Extremely Severe Cyclonic Storm"
+
+    else:
+        return "Super Cyclonic Storm"
+
+
+# --------------------------------------------------
+# Prediction
+# --------------------------------------------------
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
 
-    # Read uploaded image
-    contents = await file.read()
+    try:
 
-    image = Image.open(io.BytesIO(contents)).convert("RGB")
+        # Read image
+        contents = await file.read()
 
-    # Resize image
-    image = image.resize((256, 256))
+        image = Image.open(
+            io.BytesIO(contents)
+        )
 
-    # Convert to numpy
-    image_array = np.array(image) / 255.0
+        # Basic validation
+        width, height = image.size
 
-    # Add batch dimension
-    image_array = np.expand_dims(image_array, axis=0)
+        # ------------------------------------------------
+        # DEMO prediction
+        # ------------------------------------------------
 
-    # Temporary response
-    # We will connect your trained CNN here in the next step.
-    return {
-        "wind_speed": 0,
-        "intensity": "Unknown",
-        "message": "Image received successfully"
-    }
+        # Generate a realistic demo wind speed
+        wind_speed = random.uniform(35, 110)
 
+        wind_speed = round(
+            wind_speed,
+            2
+        )
+
+        intensity = get_intensity(
+            wind_speed
+        )
+
+        return {
+            "success": True,
+            "mode": "prototype",
+            "filename": file.filename,
+            "image_width": width,
+            "image_height": height,
+            "wind_speed_knots": wind_speed,
+            "intensity": intensity,
+            "message": "Prototype cyclone analysis completed"
+        }
+
+    except Exception as e:
+
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+# --------------------------------------------------
+# Forecast
+# --------------------------------------------------
 
 @app.post("/forecast")
 async def forecast():
 
     return {
-        "message": "Forecast endpoint is working"
+        "success": True,
+        "mode": "prototype",
+        "forecast": [
+            {
+                "time": "6 hours",
+                "wind_speed_knots": 62
+            },
+            {
+                "time": "12 hours",
+                "wind_speed_knots": 68
+            },
+            {
+                "time": "24 hours",
+                "wind_speed_knots": 74
+            }
+        ]
     }
