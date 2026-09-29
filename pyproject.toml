@@ -1,0 +1,14 @@
+[project]
+name = "cyclone-analysis"
+version = "1.0.0"
+description = "Tropical Cyclone Analysis Prototype"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "python-multipart",
+    "pillow"
+]
+
+[tool.vercel]
+entrypoint = "serve_api:app"
